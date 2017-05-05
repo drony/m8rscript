@@ -55,6 +55,11 @@ Atom AtomTable::internalAtom(SharedAtom a) const
 
 Atom AtomTable::atomizeString(const char* romstr) const
 {
+    int32_t index = findSharedAtom(romstr);
+    if (index >= 0) {
+        return Atom(static_cast<Atom::Raw>(index));
+    }
+    
     size_t len = ROMstrlen(romstr);
     if (len > MaxAtomSize || len == 0) {
         return Atom();
@@ -63,28 +68,19 @@ Atom AtomTable::atomizeString(const char* romstr) const
     char* s = new char[len + 1];
     ROMCopyString(s, romstr);
     
-    int32_t index = findAtom(s);
-    if (index >= 0) {
-        delete [ ] s;
-        return Atom(static_cast<uint16_t>(index));
-    }
+    int32_t offset = sizeof(_sharedAtoms);
     
     index = findAtom(s);
     if (index >= 0) {
         delete [ ] s;
-        return Atom(static_cast<uint16_t>(index));
-    }
-
-    if (_table.size() == 0) {
-        _table.push_back('\0');
+        return Atom(static_cast<Atom::Raw>(index + offset));
     }
     
-    Atom a(static_cast<Atom::value_type>(_table.size() - 1));
-    _table[_table.size() - 1] = -static_cast<int8_t>(len);
+    Atom a(static_cast<Atom::Raw>(_table.size() + offset));
     for (size_t i = 0; i < len; ++i) {
         _table.push_back(s[i]);
     }
-    _table.push_back('\0');
+    _table.push_back('\xff');
     delete [ ] s;
     return a;
 }
@@ -97,18 +93,34 @@ int32_t AtomTable::findAtom(const char* s) const
         return -1;
     }
 
-    if (_table.size() > 1) {
-        const char* start = reinterpret_cast<const char*>(&(_table[0]));
-        const char* p = start;
-        while(p && *p != '\0') {
-            p++;
-            p = strstr(p, s);
-            assert(p != start); // Since the first string is preceded by a length, this should never happen
-            if (p && static_cast<int8_t>(p[-1]) < 0) {
-                // The next char either needs to be negative (meaning the start of the next word) or the end of the string
-                if (static_cast<int8_t>(p[len]) <= 0) {
-                    return static_cast<int32_t>(p - start - 1);
-                }
+    const char* start = reinterpret_cast<const char*>(&(_table[0]));
+    const char* p = start;
+    while(p && *p != '\0') {
+        p++;
+        p = strstr(p, s);
+        if (p && (p == start || p[-1] == '\0')) {
+        // The next char either needs to be '\xff' (meaning the end of this word) or the end of the string
+        if (p[len] == '\xff') {
+                return static_cast<int32_t>(p - start);
+            }
+        }
+    }
+    
+    return -1;
+}
+
+int32_t AtomTable::findSharedAtom(const char* s) const
+{
+    size_t len = ROMstrlen(s);
+
+    const char* p = _sharedAtoms;
+    while(p && *p != '\0') {
+        p++;
+        p = ROMstrstr(p, s);
+        if (p && (p == _sharedAtoms || p[-1] == '\xff')) {
+            // The next char either needs to be '\xff' (meaning the end of this word) or the end of the string
+            if (p[len] == '\xff') {
+                return static_cast<int32_t>(p - _sharedAtoms);
             }
         }
     }

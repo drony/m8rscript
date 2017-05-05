@@ -71,14 +71,11 @@ public:
         return m8r::String(reinterpret_cast<const char*>(&(_table[index + 1])), -_table[index]);
     }
     
-    const std::vector<int8_t>& stringTable() const { return _table; }
-    
     Atom internalAtom(SharedAtom) const;
 
 private:
     int32_t findAtom(const char* s) const;
-
-    std::vector<int8_t>& stringTable() { return _table; }
+    int32_t findSharedAtom(const char* s) const;
 
     static constexpr uint8_t MaxAtomSize = 127;
 
