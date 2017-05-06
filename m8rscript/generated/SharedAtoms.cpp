@@ -4,12 +4,13 @@
 #include "Defines.h"
 #include <stdlib.h>
 
-const char* _sharedAtoms ROMSTR_ATTR =
-    "\xff"
-    "Array\xff"
-    "Base64\xff"
-;
+const char* _sharedAtoms ROMSTR_ATTR = 
+    "0xff" "Array" "\xfe"
+    "0xff" "Base64" "\xfd"
+    
 
+static const char _Array[] ROMSTR_ATTR = "Array";
+static const char _Base64[] ROMSTR_ATTR = "Base64";
 static const char _BothEdges[] ROMSTR_ATTR = "BothEdges";
 static const char _Connected[] ROMSTR_ATTR = "Connected";
 static const char _Disconnected[] ROMSTR_ATTR = "Disconnected";
@@ -80,8 +81,11 @@ static const char ___nativeObject[] ROMSTR_ATTR = "__nativeObject";
 static const char ___object[] ROMSTR_ATTR = "__object";
 static const char ___this[] ROMSTR_ATTR = "__this";
 static const char ___typeName[] ROMSTR_ATTR = "__typeName";
+static const char ___count__[] ROMSTR_ATTR = "__count__";
 
 const char* RODATA_ATTR sharedAtoms[] = {
+    _Array,
+    _Base64,
     _BothEdges,
     _Connected,
     _Disconnected,
@@ -152,6 +156,7 @@ const char* RODATA_ATTR sharedAtoms[] = {
     ___object,
     ___this,
     ___typeName,
+    ___count__,
 };
 
 const char* sharedAtom(enum SharedAtom id)

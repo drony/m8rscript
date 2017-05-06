@@ -139,7 +139,7 @@ int main()
     }
     
     // Write the postambles
-    fprintf(hfile, "};\n\nconst char* sharedAtom(enum SharedAtom id);\n");
+    fprintf(hfile, "};\n\nextern const char* _sharedAtoms;\n\n");
     fprintf(cppfile, "};\n\nconst char* sharedAtom(enum SharedAtom id)\n{\n    return sharedAtoms[static_cast<uint32_t>(id)];\n}\n");
     
     fclose(ifile);

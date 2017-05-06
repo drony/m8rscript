@@ -72,9 +72,9 @@ enum class SharedAtom {
     __nativeObject,
     __object,
     __this,
-    __typeName,    
+    __typeName,
+    __count__,
 };
 
 extern const char* _sharedAtoms;
 
-const char* sharedAtom(enum SharedAtom id);

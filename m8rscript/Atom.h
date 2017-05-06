@@ -59,19 +59,12 @@ class AtomTable {
     
 public:
     
-    AtomTable();
+    AtomTable() { }
 
     Atom atomizeString(const char*) const;
-    m8r::String stringFromAtom(const Atom atom) const
-    {
-        if (!atom) {
-            return String();
-        }
-        uint16_t index = atom.raw();
-        return m8r::String(reinterpret_cast<const char*>(&(_table[index + 1])), -_table[index]);
-    }
+    m8r::String stringFromAtom(const Atom atom) const;
     
-    Atom internalAtom(SharedAtom) const;
+    Atom internalAtom(SharedAtom a) const { return Atom(static_cast<Atom::value_type>(a)); }
 
 private:
     int32_t findAtom(const char* s) const;

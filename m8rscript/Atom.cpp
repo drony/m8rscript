@@ -38,26 +38,11 @@ POSSIBILITY OF SUCH DAMAGE.
 
 using namespace m8r;
 
-AtomTable::AtomTable()
-{
-}
-
-Atom AtomTable::internalAtom(SharedAtom a) const
-{
-    auto it = _sharedAtomMap.find(static_cast<int32_t>(a));
-    if (it == _sharedAtomMap.end()) {
-        Atom atom = atomizeString(sharedAtom(a));
-        _sharedAtomMap.emplace(static_cast<int32_t>(a), atom);
-        return atom;
-    }
-    return it->value;
-}
-
 Atom AtomTable::atomizeString(const char* romstr) const
 {
     int32_t index = findSharedAtom(romstr);
     if (index >= 0) {
-        return Atom(static_cast<Atom::Raw>(index));
+        return internalAtom(static_cast<SharedAtom>(index));
     }
     
     size_t len = ROMstrlen(romstr);
@@ -68,7 +53,7 @@ Atom AtomTable::atomizeString(const char* romstr) const
     char* s = new char[len + 1];
     ROMCopyString(s, romstr);
     
-    int32_t offset = sizeof(_sharedAtoms);
+    int32_t offset = static_cast<int32_t>(SharedAtoms::__Count);
     
     index = findAtom(s);
     if (index >= 0) {
@@ -83,6 +68,17 @@ Atom AtomTable::atomizeString(const char* romstr) const
     _table.push_back('\xff');
     delete [ ] s;
     return a;
+}
+
+m8r::String AtomTable::stringFromAtom(const Atom atom) const
+{
+    if (!atom) {
+        return String();
+    }
+    uint16_t index = atom.raw();
+    int32_t length = -_table[index];
+    assert(length > 0 && length <= MaxAtomSize);
+    return m8r::String(reinterpret_cast<const char*>(&(_table[index + 1])), length);
 }
 
 int32_t AtomTable::findAtom(const char* s) const
