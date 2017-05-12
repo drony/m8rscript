@@ -113,7 +113,7 @@ private:
         
         bool operator==(const UpValueEntry& other) const
         {
-            return _index == other._index && _frame == other._frame && _name == other._name;
+            return _index == other._index && _frame == other._frame && _name.raw() == other._name.raw();
         }
         
         uint32_t _index;

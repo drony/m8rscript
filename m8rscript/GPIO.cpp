@@ -43,7 +43,7 @@ POSSIBILITY OF SUCH DAMAGE.
 using namespace m8r;
 
 GPIO::GPIO(Program* program)
-    : ObjectFactory(program, ATOM(program, GPIO))
+    : ObjectFactory(program, SharedAtom::GPIO)
     , _pinMode(program)
     , _trigger(program)
     , _setPinMode(setPinMode)
@@ -51,13 +51,13 @@ GPIO::GPIO(Program* program)
     , _digitalRead(digitalRead)
     , _onInterrupt(onInterrupt)
 {
-    addProperty(ATOM(program, setPinMode), &_setPinMode);
-    addProperty(ATOM(program, digitalWrite), &_digitalWrite);
-    addProperty(ATOM(program, digitalRead), &_digitalRead);
-    addProperty(ATOM(program, onInterrupt), &_onInterrupt);
+    addProperty(SharedAtom::setPinMode, &_setPinMode);
+    addProperty(SharedAtom::digitalWrite, &_digitalWrite);
+    addProperty(SharedAtom::digitalRead, &_digitalRead);
+    addProperty(SharedAtom::onInterrupt, &_onInterrupt);
     
-    addProperty(ATOM(program, PinMode), Value(_pinMode.nativeObject()));
-    addProperty(ATOM(program, Trigger), Value(_trigger.nativeObject()));
+    addProperty(SharedAtom::PinMode, Value(_pinMode.nativeObject()));
+    addProperty(SharedAtom::Trigger, Value(_trigger.nativeObject()));
 }
 
 CallReturnValue GPIO::setPinMode(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
@@ -89,22 +89,22 @@ CallReturnValue GPIO::onInterrupt(ExecutionUnit* eu, Value thisValue, uint32_t n
 }
 
 PinMode::PinMode(Program* program)
-    : ObjectFactory(program, ATOM(program, PinMode))
+    : ObjectFactory(program, SharedAtom::PinMode)
 {
-    addProperty(ATOM(program, Output), Value(static_cast<int32_t>(GPIOInterface::PinMode::Output)));
-    addProperty(ATOM(program, OutputOpenDrain), Value(static_cast<int32_t>(GPIOInterface::PinMode::OutputOpenDrain)));
-    addProperty(ATOM(program, Input), Value(static_cast<int32_t>(GPIOInterface::PinMode::Input)));
-    addProperty(ATOM(program, InputPullup), Value(static_cast<int32_t>(GPIOInterface::PinMode::InputPullup)));
-    addProperty(ATOM(program, InputPulldown), Value(static_cast<int32_t>(GPIOInterface::PinMode::InputPulldown)));
+    addProperty(SharedAtom::Output, Value(static_cast<int32_t>(GPIOInterface::PinMode::Output)));
+    addProperty(SharedAtom::OutputOpenDrain, Value(static_cast<int32_t>(GPIOInterface::PinMode::OutputOpenDrain)));
+    addProperty(SharedAtom::Input, Value(static_cast<int32_t>(GPIOInterface::PinMode::Input)));
+    addProperty(SharedAtom::InputPullup, Value(static_cast<int32_t>(GPIOInterface::PinMode::InputPullup)));
+    addProperty(SharedAtom::InputPulldown, Value(static_cast<int32_t>(GPIOInterface::PinMode::InputPulldown)));
 }
 
 Trigger::Trigger(Program* program)
-    : ObjectFactory(program, ATOM(program, Trigger))
+    : ObjectFactory(program, SharedAtom::Trigger)
 {
-    addProperty(ATOM(program, None), Value(static_cast<int32_t>(GPIOInterface::Trigger::None)));
-    addProperty(ATOM(program, RisingEdge), Value(static_cast<int32_t>(GPIOInterface::Trigger::RisingEdge)));
-    addProperty(ATOM(program, FallingEdge), Value(static_cast<int32_t>(GPIOInterface::Trigger::FallingEdge)));
-    addProperty(ATOM(program, BothEdges), Value(static_cast<int32_t>(GPIOInterface::Trigger::BothEdges)));
-    addProperty(ATOM(program, Low), Value(static_cast<int32_t>(GPIOInterface::Trigger::Low)));
-    addProperty(ATOM(program, High), Value(static_cast<int32_t>(GPIOInterface::Trigger::High)));
+    addProperty(SharedAtom::None, Value(static_cast<int32_t>(GPIOInterface::Trigger::None)));
+    addProperty(SharedAtom::RisingEdge, Value(static_cast<int32_t>(GPIOInterface::Trigger::RisingEdge)));
+    addProperty(SharedAtom::FallingEdge, Value(static_cast<int32_t>(GPIOInterface::Trigger::FallingEdge)));
+    addProperty(SharedAtom::BothEdges, Value(static_cast<int32_t>(GPIOInterface::Trigger::BothEdges)));
+    addProperty(SharedAtom::Low, Value(static_cast<int32_t>(GPIOInterface::Trigger::Low)));
+    addProperty(SharedAtom::High, Value(static_cast<int32_t>(GPIOInterface::Trigger::High)));
 }

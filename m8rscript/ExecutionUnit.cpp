@@ -123,7 +123,7 @@ Value ExecutionUnit::derefId(Atom atom)
         return Value();
     }
     
-    if (atom == ATOM(this, __this)) {
+    if (atom == SharedAtom::__this) {
         return Value(_this);
     }
 

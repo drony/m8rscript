@@ -158,8 +158,6 @@ public:
     
     uint32_t lineno() const { return _lineno; }
 
-    Atom internalAtom(SharedAtom a) const { return _program->internalAtom(a); }
-
 private:
     void startFunction(Object* function, Object* thisObject, uint32_t nparams, bool inScope);
     CallReturnValue runNextEvent();

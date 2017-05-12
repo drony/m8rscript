@@ -86,13 +86,13 @@ int main()
     }
     
     // Write the preambles
-    fprintf(hfile, "// This file is generated. Do not edit\n\nenum class SharedAtom {\n");
-    fprintf(cppfile, "// This file is generated. Do not edit\n\n#include \"SharedAtoms.h\"\n#include \"Defines.h\"\n#include <stdlib.h>\n\n");
+    fprintf(hfile, "// This file is generated. Do not edit\n\nenum class SharedAtom {\n    NoSharedAtom,\n");
+    fprintf(cppfile, "// This file is generated. Do not edit\n\n#include \"Defines.h\"\n\nconst char* _sharedAtoms ROMSTR_ATTR = \n");
     
-    // Write the .h entries and the first .cpp entries
+    // Write the .h entries and the .cpp entries
     char entry[128];
     
-    while (1) {
+    for (uint32_t index = 1; ; ++index) {
         char* line;
         size_t length;
         ssize_t size = getline(&line, &length, ifile);
@@ -111,36 +111,12 @@ int main()
         }
         
         fprintf(hfile, "    %s,\n", entry);
-        fprintf(cppfile, "static const char _%s[] ROMSTR_ATTR = \"%s\";\n", entry, entry);
-    }
-    
-    // Write the second .cpp entries
-    fprintf(cppfile, "\nconst char* RODATA_ATTR sharedAtoms[] = {\n");
-    rewind(ifile);
-    while (1) {
-        char* line;
-        size_t length;
-        ssize_t size = getline(&line, &length, ifile);
-        if (size < 0) {
-            if (feof(ifile)) {
-                break;
-            }
-            printf("getline failed:%d\n", errno);
-            return -1;
-        }
-        
-        strip(entry, line);
-
-        if (strlen(entry) == 0) {
-            continue;
-        }
-        
-        fprintf(cppfile, "    _%s,\n", entry);
+        fprintf(cppfile, "    \"\\x01\\x%02x\" \"%s\"\n", index, entry);
     }
     
     // Write the postambles
-    fprintf(hfile, "};\n\nextern const char* _sharedAtoms;\n\n");
-    fprintf(cppfile, "};\n\nconst char* sharedAtom(enum SharedAtom id)\n{\n    return sharedAtoms[static_cast<uint32_t>(id)];\n}\n");
+    fprintf(hfile, "    NumSharedAtoms\n};\n\nextern const char* _sharedAtoms;\n\n");
+    fprintf(cppfile, ";\n");
     
     fclose(ifile);
     fclose(hfile);

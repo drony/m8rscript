@@ -1,6 +1,7 @@
 // This file is generated. Do not edit
 
 enum class SharedAtom {
+    NoSharedAtom,
     Array,
     Base64,
     BothEdges,
@@ -74,6 +75,7 @@ enum class SharedAtom {
     __this,
     __typeName,
     __count__,
+    NumSharedAtoms
 };
 
 extern const char* _sharedAtoms;

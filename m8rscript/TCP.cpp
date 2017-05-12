@@ -42,22 +42,22 @@ POSSIBILITY OF SUCH DAMAGE.
 using namespace m8r;
 
 TCPProto::TCPProto(Program* program)
-    : ObjectFactory(program, ATOM(program, TCPProto))
+    : ObjectFactory(program, SharedAtom::TCPProto)
     , _constructor(constructor)
     , _send(send)
     , _disconnect(disconnect)
 {
-    addProperty(ATOM(program, constructor), &_constructor);
-    addProperty(ATOM(program, send), &_send);
-    addProperty(ATOM(program, disconnect), &_disconnect);
+    addProperty(SharedAtom::constructor, &_constructor);
+    addProperty(SharedAtom::send, &_send);
+    addProperty(SharedAtom::disconnect, &_disconnect);
     
-    addProperty(ATOM(program, Connected), Value(static_cast<int32_t>(TCPDelegate::Event::Connected)));
-    addProperty(ATOM(program, Reconnected), Value(static_cast<int32_t>(TCPDelegate::Event::Reconnected)));
-    addProperty(ATOM(program, Disconnected), Value(static_cast<int32_t>(TCPDelegate::Event::Disconnected)));
-    addProperty(ATOM(program, Error), Value(static_cast<int32_t>(TCPDelegate::Event::Error)));
-    addProperty(ATOM(program, ReceivedData), Value(static_cast<int32_t>(TCPDelegate::Event::ReceivedData)));
-    addProperty(ATOM(program, SentData), Value(static_cast<int32_t>(TCPDelegate::Event::SentData)));
-    addProperty(ATOM(program, MaxConnections), Value(static_cast<int32_t>(TCP::MaxConnections)));
+    addProperty(SharedAtom::Connected, Value(static_cast<int32_t>(TCPDelegate::Event::Connected)));
+    addProperty(SharedAtom::Reconnected, Value(static_cast<int32_t>(TCPDelegate::Event::Reconnected)));
+    addProperty(SharedAtom::Disconnected, Value(static_cast<int32_t>(TCPDelegate::Event::Disconnected)));
+    addProperty(SharedAtom::Error, Value(static_cast<int32_t>(TCPDelegate::Event::Error)));
+    addProperty(SharedAtom::ReceivedData, Value(static_cast<int32_t>(TCPDelegate::Event::ReceivedData)));
+    addProperty(SharedAtom::SentData, Value(static_cast<int32_t>(TCPDelegate::Event::SentData)));
+    addProperty(SharedAtom::MaxConnections, Value(static_cast<int32_t>(TCP::MaxConnections)));
 }
 
 CallReturnValue TCPProto::constructor(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
@@ -95,7 +95,7 @@ CallReturnValue TCPProto::constructor(ExecutionUnit* eu, Value thisValue, uint32
     if (!obj) {
         return CallReturnValue(CallReturnValue::Error::MissingThis);
     }
-    obj->setProperty(eu, ATOM(eu, __nativeObject), Value(delegate), Value::SetPropertyType::AlwaysAdd);
+    obj->setProperty(eu, SharedAtom::__nativeObject, Value(delegate), Value::SetPropertyType::AlwaysAdd);
 
     return CallReturnValue(CallReturnValue::Type::ReturnCount, 0);
 }
@@ -129,7 +129,7 @@ CallReturnValue TCPProto::send(ExecutionUnit* eu, Value thisValue, uint32_t npar
         return CallReturnValue(CallReturnValue::Error::MissingThis);
     }
     
-    MyTCPDelegate* delegate = reinterpret_cast<MyTCPDelegate*>(obj->property(eu, ATOM(eu, __nativeObject)).asNativeObject());
+    MyTCPDelegate* delegate = reinterpret_cast<MyTCPDelegate*>(obj->property(eu, SharedAtom::__nativeObject).asNativeObject());
     if (!delegate) {
         return CallReturnValue(CallReturnValue::Error::InternalError);
     }
@@ -149,7 +149,7 @@ CallReturnValue TCPProto::disconnect(ExecutionUnit* eu, Value thisValue, uint32_
         return CallReturnValue(CallReturnValue::Error::MissingThis);
     }
     
-    MyTCPDelegate* delegate = reinterpret_cast<MyTCPDelegate*>(obj->property(eu, ATOM(eu, __nativeObject)).asNativeObject());
+    MyTCPDelegate* delegate = reinterpret_cast<MyTCPDelegate*>(obj->property(eu, SharedAtom::__nativeObject).asNativeObject());
     
     int16_t connectionId = nparams ? eu->stack().top(1 - nparams).toIntValue(eu) : 0;
     delegate->disconnect(connectionId);

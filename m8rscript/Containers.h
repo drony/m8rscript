@@ -82,7 +82,7 @@ public:
 
     const Id& operator=(const Id& other) { _value._raw = other._value._raw; return *this; }
     Id& operator=(Id& other) { _value._raw = other._value._raw; return *this; }
-    operator bool() const { return _value._raw != NoId; }
+    explicit operator bool() const { return _value._raw != NoId; }
     operator Raw() const { return _value; }
 
     int operator-(const Id& other) const { return static_cast<int>(_value._raw) - static_cast<int>(other._value._raw); }
@@ -95,7 +95,6 @@ private:
 };
 
 class StringLiteral : public Id<uint32_t> { using Id::Id; };
-class Atom : public Id<uint16_t> { using Id::Id; };
 class ConstantId : public Id<uint8_t> { using Id::Id; };
 
 //////////////////////////////////////////////////////////////////////////////

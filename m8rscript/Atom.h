@@ -42,6 +42,14 @@ namespace m8r {
 
 class Stream;
 
+class Atom : public Id<uint16_t> {
+    using Id::Id;
+
+public:
+    Atom(SharedAtom a) { *this = Atom(static_cast<Atom::value_type>(a)); }
+    friend bool operator==(const Atom& atom, const SharedAtom& other) { return atom == Atom(other); }
+};
+
 //////////////////////////////////////////////////////////////////////////////
 //
 //  Class: AtomTable
@@ -52,7 +60,7 @@ class Stream;
 //
 //////////////////////////////////////////////////////////////////////////////
 
-#define ATOM(p, a) (p ? p->internalAtom(SharedAtom::a) : Atom())
+static inline Atom ATOM(SharedAtom a) { return Atom(static_cast<Atom::value_type>(a)); }
 
 class AtomTable {
     friend class Program;
@@ -63,14 +71,13 @@ public:
 
     Atom atomizeString(const char*) const;
     m8r::String stringFromAtom(const Atom atom) const;
-    
-    Atom internalAtom(SharedAtom a) const { return Atom(static_cast<Atom::value_type>(a)); }
 
 private:
-    int32_t findAtom(const char* s) const;
-    int32_t findSharedAtom(const char* s) const;
+    int32_t findAtom(const char* s, size_t length) const;
+    SharedAtom findSharedAtom(const char* s, size_t length) const;
 
     static constexpr uint8_t MaxAtomSize = 127;
+    static constexpr Atom::value_type NumSharedAtoms = static_cast<Atom::value_type>(SharedAtom::NumSharedAtoms);
 
     mutable std::vector<int8_t> _table;
     mutable Map<int32_t, Atom> _sharedAtomMap;

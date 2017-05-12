@@ -125,12 +125,12 @@ int Base64::encode(size_t in_len, const unsigned char *in, size_t out_len, char 
 }
 
 Base64::Base64(Program* program)
-    : ObjectFactory(program, ATOM(program, Base64))
+    : ObjectFactory(program, SharedAtom::Base64)
     , _encode(encode)
     , _decode(decode)
 {
-    addProperty(ATOM(program, encode), &_encode);
-    addProperty(ATOM(program, decode), &_decode);
+    addProperty(SharedAtom::encode, &_encode);
+    addProperty(SharedAtom::decode, &_decode);
 }
 
 CallReturnValue Base64::encode(ExecutionUnit* eu, Value thisValue, uint32_t nparams)

@@ -40,28 +40,26 @@ using namespace m8r;
 
 Atom AtomTable::atomizeString(const char* romstr) const
 {
-    int32_t index = findSharedAtom(romstr);
-    if (index >= 0) {
-        return internalAtom(static_cast<SharedAtom>(index));
-    }
-    
     size_t len = ROMstrlen(romstr);
     if (len > MaxAtomSize || len == 0) {
         return Atom();
     }
 
-    char* s = new char[len + 1];
-    ROMCopyString(s, romstr);
-    
-    int32_t offset = static_cast<int32_t>(SharedAtoms::__Count);
-    
-    index = findAtom(s);
-    if (index >= 0) {
-        delete [ ] s;
-        return Atom(static_cast<Atom::Raw>(index + offset));
+    SharedAtom sharedAtom = findSharedAtom(romstr, len);
+    if (sharedAtom != SharedAtom::NoSharedAtom) {
+        return ATOM(sharedAtom);
     }
     
-    Atom a(static_cast<Atom::Raw>(_table.size() + offset));
+    char* s = new char[len + 1];
+    ROMCopyString(s, romstr);
+
+    int32_t index = findAtom(s, len);
+    if (index >= 0) {
+        delete [ ] s;
+        return Atom(static_cast<Atom::Raw>(index + NumSharedAtoms));
+    }
+    
+    Atom a(static_cast<Atom::value_type>(_table.size() + NumSharedAtoms));
     for (size_t i = 0; i < len; ++i) {
         _table.push_back(s[i]);
     }
@@ -70,21 +68,44 @@ Atom AtomTable::atomizeString(const char* romstr) const
     return a;
 }
 
+static int32_t atomLength(int8_t* p)
+{
+    for (int8_t* end = p; ; ++end) {
+        if (*end == '\xff' || *end == '\0') {
+            return static_cast<int32_t>(end - p);
+        }
+    }
+}
+
 m8r::String AtomTable::stringFromAtom(const Atom atom) const
 {
     if (!atom) {
         return String();
     }
-    uint16_t index = atom.raw();
-    int32_t length = -_table[index];
+    
+    if (atom.raw() < NumSharedAtoms) {
+        const char* p = _sharedAtoms;
+        while (1) {
+            p = ROMstrstr(p, "\x01");
+            if (!p) {
+                break;
+            }
+            p++;
+            if (readRomByte(reinterpret_cast<const uint8_t*>(p++)) == atom.raw()) {
+                const char* end = ROMstrstr(p, "\x01");
+                return end ? String(p, static_cast<int32_t>(end - p)) : String(p);
+            }
+        }
+    }
+    
+    uint16_t index = atom.raw() - NumSharedAtoms;
+    int32_t length = atomLength(&(_table[index]));
     assert(length > 0 && length <= MaxAtomSize);
-    return m8r::String(reinterpret_cast<const char*>(&(_table[index + 1])), length);
+    return m8r::String(reinterpret_cast<const char*>(&(_table[index])), length);
 }
 
-int32_t AtomTable::findAtom(const char* s) const
+int32_t AtomTable::findAtom(const char* s, size_t length) const
 {
-    size_t len = strlen(s);
-
     if (_table.size() == 0) {
         return -1;
     }
@@ -92,34 +113,42 @@ int32_t AtomTable::findAtom(const char* s) const
     const char* start = reinterpret_cast<const char*>(&(_table[0]));
     const char* p = start;
     while(p && *p != '\0') {
-        p++;
         p = strstr(p, s);
-        if (p && (p == start || p[-1] == '\0')) {
-        // The next char either needs to be '\xff' (meaning the end of this word) or the end of the string
-        if (p[len] == '\xff') {
+        if (!p) {
+            break;
+        }
+        if (p == start || p[-1] == '\0') {
+            // The next char either needs to be '\xff' (meaning the end of this word) or the end of the string
+            if (p[length] == '\xff' || p[length] == '\0') {
                 return static_cast<int32_t>(p - start);
             }
         }
+        p++;
     }
     
     return -1;
 }
 
-int32_t AtomTable::findSharedAtom(const char* s) const
+SharedAtom AtomTable::findSharedAtom(const char* s, size_t length) const
 {
-    size_t len = ROMstrlen(s);
-
-    const char* p = _sharedAtoms;
+    // Each SharedAtom is precedded by 2 bytes, 0x01 and the id which is the enumerator cast into a byte.
+    assert(_sharedAtoms[0] == '\x01' && _sharedAtoms[1] != '\0');
+    const char* p = _sharedAtoms + 2;
+    
     while(p && *p != '\0') {
-        p++;
         p = ROMstrstr(p, s);
-        if (p && (p == _sharedAtoms || p[-1] == '\xff')) {
-            // The next char either needs to be '\xff' (meaning the end of this word) or the end of the string
-            if (p[len] == '\xff') {
-                return static_cast<int32_t>(p - _sharedAtoms);
+        if (!p) {
+            break;
+        }
+        if (readRomByte(reinterpret_cast<const uint8_t*>(p) - 2) == '\x01') {
+            // The next char either needs to be 0x01 (meaning the end of this word) or the end of the string
+            char c = readRomByte(reinterpret_cast<const uint8_t*>(p) + length);
+            if (c == '\x01' || c == '\0') {
+                return static_cast<SharedAtom>(readRomByte(reinterpret_cast<const uint8_t*>(p) - 1));
             }
         }
+        p++;
     }
     
-    return -1;
+    return SharedAtom::NoSharedAtom;
 }

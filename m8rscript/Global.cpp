@@ -43,7 +43,7 @@ POSSIBILITY OF SUCH DAMAGE.
 using namespace m8r;
 
 Global::Global(Program* program)
-    : ObjectFactory(program, ATOM(program, Global))
+    : ObjectFactory(program, SharedAtom::Global)
     , _array(true)
     , _base64(program)
     , _gpio(program)
@@ -64,26 +64,26 @@ Global::Global(Program* program)
     // The proto for IPAddr contains the local IP address
     _ipAddr.setIPAddr(IPAddr::myIPAddr());
     
-    addProperty(ATOM(program, currentTime), &_currentTime);
-    addProperty(ATOM(program, delay), &_delay);
-    addProperty(ATOM(program, print), &_print);
-    addProperty(ATOM(program, printf), &_printf);
-    addProperty(ATOM(program, println), &_println);
-    addProperty(ATOM(program, toFloat), &_toFloat);
-    addProperty(ATOM(program, toInt), &_toInt);
-    addProperty(ATOM(program, toUInt), &_toUInt);
-    addProperty(ATOM(program, arguments), &_arguments);
+    addProperty(SharedAtom::currentTime, &_currentTime);
+    addProperty(SharedAtom::delay, &_delay);
+    addProperty(SharedAtom::print, &_print);
+    addProperty(SharedAtom::printf, &_printf);
+    addProperty(SharedAtom::println, &_println);
+    addProperty(SharedAtom::toFloat, &_toFloat);
+    addProperty(SharedAtom::toInt, &_toInt);
+    addProperty(SharedAtom::toUInt, &_toUInt);
+    addProperty(SharedAtom::arguments, &_arguments);
 
-    addProperty(ATOM(program, Array), &_array);
-    addProperty(ATOM(program, Object), &_object);
-    addProperty(ATOM(program, IPAddr), &_ipAddr);
+    addProperty(SharedAtom::Array, &_array);
+    addProperty(SharedAtom::Object, &_object);
+    addProperty(SharedAtom::IPAddr, &_ipAddr);
     
-    addProperty(ATOM(program, Base64), Value(_base64.nativeObject()));
-    addProperty(ATOM(program, GPIO), Value(_gpio.nativeObject()));
-    addProperty(ATOM(program, JSON), Value(_json.nativeObject()));
-    addProperty(ATOM(program, TCP), Value(_tcp.nativeObject()));
-    addProperty(ATOM(program, UDP), Value(_udp.nativeObject()));
-    addProperty(ATOM(program, Iterator), Value(_iterator.nativeObject()));
+    addProperty(SharedAtom::Base64, Value(_base64.nativeObject()));
+    addProperty(SharedAtom::GPIO, Value(_gpio.nativeObject()));
+    addProperty(SharedAtom::JSON, Value(_json.nativeObject()));
+    addProperty(SharedAtom::TCP, Value(_tcp.nativeObject()));
+    addProperty(SharedAtom::UDP, Value(_udp.nativeObject()));
+    addProperty(SharedAtom::Iterator, Value(_iterator.nativeObject()));
 }
 
 Global::~Global()
@@ -273,7 +273,7 @@ CallReturnValue Global::toUInt(ExecutionUnit* eu, Value thisValue, uint32_t npar
 
 CallReturnValue Global::arguments(ExecutionUnit* eu, Value thisValue, uint32_t nparams)
 {
-    Object* array = ObjectFactory::create(ATOM(eu, Array), eu, 0);
+    Object* array = ObjectFactory::create(SharedAtom::Array, eu, 0);
     if (!array) {
         return CallReturnValue(CallReturnValue::Error::CannotCreateArgumentsArray);
     }
