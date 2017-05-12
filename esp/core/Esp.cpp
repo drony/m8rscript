@@ -120,7 +120,7 @@ class EspSystemInterface : public m8r::SystemInterface
 public:
     virtual void vprintf(const char* fmt, va_list) const override;
     virtual m8r::GPIOInterface& gpio() { return _gpio; }
-    virtual uint32_t freeMemory() const override { return umm_free_heap_size(); }
+    virtual uint32_t freeMemory() const override { return system_get_free_heap_size(); }
     
 private:
     m8r::EspGPIOInterface _gpio;
@@ -447,7 +447,7 @@ void initmdns()
     }
 
     _responder = new m8r::MDNSResponder(name);
-    _responder->addService(22, "My Internet Of Things", "m8rscript_shell");
+    _responder->addService(22, "m8r IoT", "m8rscript_shell");
 }
 
 void initSoftAP()
