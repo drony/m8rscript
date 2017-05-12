@@ -117,7 +117,7 @@ int32_t AtomTable::findAtom(const char* s, size_t length) const
         if (!p) {
             break;
         }
-        if (p == start || p[-1] == '\0') {
+        if (p == start || p[-1] == '\xff') {
             // The next char either needs to be '\xff' (meaning the end of this word) or the end of the string
             if (p[length] == '\xff' || p[length] == '\0') {
                 return static_cast<int32_t>(p - start);
