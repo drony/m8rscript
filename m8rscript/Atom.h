@@ -46,6 +46,7 @@ class Atom : public Id<uint16_t> {
     using Id::Id;
 
 public:
+    Atom() { }
     Atom(SharedAtom a) { *this = Atom(static_cast<Atom::value_type>(a)); }
     friend bool operator==(const Atom& atom, const SharedAtom& other) { return atom == Atom(other); }
 };
